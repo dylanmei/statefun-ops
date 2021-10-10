@@ -1,0 +1,32 @@
+domains:
+- name: kafka.server
+  beans:
+  - pattern: "type=BrokerTopicMetrics,name=*,topic=*"
+    attributes:
+    - Count: counter
+    - OneMinuteRate: gauge
+    metric: "kafka_topic_${keyprop name | replace PerSec | replace Total | snake}_${attribute | replace Count total | replace OneMinuteRate rate}"
+    labels:
+      topic: "${keyprop topic}"
+  - pattern: "type=Produce,user=*"
+    attributes:
+      - byte-rate: gauge
+      - throttle-time: gauge
+    metric: "kafka_user_produce_${attribute | snake}"
+    labels:
+      user: "${keyprop user}"
+  - pattern: "type=Fetch,user=*"
+    attributes:
+      - byte-rate: gauge
+      - throttle-time: gauge
+    metric: "kafka_user_fetch_${attribute | snake}"
+    labels:
+      user: "${keyprop user}"
+- name: kafka.log
+  beans:
+  - pattern: "type=Log,name=Size,topic=*,partition=0"
+    attributes:
+    - Value: gauge
+    metric: "kafka_topic_log_size"
+    labels:
+      topic: "${keyprop topic}"

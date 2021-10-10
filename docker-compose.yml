@@ -1,0 +1,98 @@
+version: "3"
+services:
+  zookeeper:
+    image: wurstmeister/zookeeper
+    ports:
+      - "2181:2181"
+    logging:
+      driver: none
+
+  kafka-broker:
+    image: wurstmeister/kafka:2.13-2.7.1
+    ports:
+      - "9092:9092"
+      - "9010:9010"
+    environment:
+      KAFKA_BROKER_ID: "1"
+      KAFKA_LISTENERS: "PUBLIC://0.0.0.0:9092,INTERNAL://0.0.0.0:19092"
+      KAFKA_ADVERTISED_LISTENERS: "PUBLIC://localhost:9092,INTERNAL://kafka-broker:19092"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "PUBLIC:SASL_PLAINTEXT,INTERNAL:PLAINTEXT"
+      KAFKA_INTER_BROKER_LISTENER_NAME: "INTERNAL"
+      KAFKA_SASL_ENABLED_MECHANISMS: "PLAIN,SCRAM-SHA-256,SCRAM-SHA-512"
+      KAFKA_LISTENER_NAME_PUBLIC_PLAIN_SASL_JAAS_CONFIG: >-
+        org.apache.kafka.common.security.plain.PlainLoginModule required
+        user_statefun=\"statefun\";
+      KAFKA_SUPER_USERS: "User:statefun"
+      KAFKA_NUM_PARTITIONS: 1
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 1
+      KAFKA_OFFSETS_TOPIC_NUM_PARTITIONS: 1
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+      KAFKA_ZOOKEEPER_SET_ACL: "false"
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+      KAFKA_CREATE_TOPICS_SEPARATOR: " "
+      KAFKA_CREATE_TOPICS: >-
+        prometheus-metrics:1:1
+        kafka-user-requests:1:1
+        kafka-user-events:1:1
+        kafka-user-snapshots:1:1:compact
+        kafka-topic-requests:1:1
+        kafka-topic-events:1:1
+        kafka-topic-snapshots:1:1:compact
+      KAFKA_OPTS: "-Djava.security.auth.login.config=/jaas.conf"
+      JMX_PORT: 9010
+      KAFKA_JMX_OPTS: >-
+        -Dcom.sun.management.jmxremote
+        -Dcom.sun.management.jmxremote.authenticate=false
+        -Dcom.sun.management.jmxremote.ssl=false
+        -Djava.rmi.server.hostname=kafka-broker
+        -Dcom.sun.management.jmxremote.rmi.port=9010
+      LOG4J_LOGGER_KAFKA_CLUSTER: "WARN"
+      LOG4J_LOGGER_KAFKA_COORDINATOR_GROUP: "WARN"
+      #LOG4J_LOGGER_KAFKA_SERVER: "WARN"
+      LOG4J_LOGGER_KAFKA_LOG: "WARN"
+      LOG4J_LOGGER_KAFKA_ZOOKEEPER: "OFF"
+      LOG4J_LOGGER_ORG_APACHE_ZOOKEEPER: "OFF"
+      KAFKA_PRINCIPAL_BUILDER_CLASS: "com.nordstrom.kafka.security.auth.RegexPrincipalBuilder"
+      # Regex to extract principal from 'user.nonce' authentication identifiers
+      KAFKA_PRINCIPAL_BUILDER_REGEX: "(.+)\\..+"
+    volumes:
+      - "./docker-compose/jaas.conf:/jaas.conf"
+      - "./docker-compose/kafka-regex-principal-builder.jar:/opt/kafka/libs/regex-principal-builder.jar"
+    depends_on:
+      - zookeeper
+
+  prometheus:
+    image: prom/prometheus:v2.30.2
+    command:
+      - --config.file=/prometheus.yml
+    ports:
+      - "9090:9090"
+    volumes:
+      - "./docker-compose/prometheus.yml:/prometheus.yml"
+
+  mbean_exporter:
+    image: dylanmei/mbean_exporter:v0.6
+    command:
+      - /mbean_exporter.jar
+      - -o=http
+      - --jmx.host=kafka-broker
+      - --jmx.port=9010
+      - --repeat.ms=10000
+    restart: always
+    volumes:
+      - "./docker-compose/mbean_exporter.yml:/config.yaml"
+    depends_on:
+      - kafka-broker
+
+  prometheus-writer:
+    image: telefonica/prometheus-kafka-adapter:1.7.0
+    environment:
+      PORT: 9089
+      KAFKA_BROKER_LIST: kafka-broker:19092
+      KAFKA_TOPIC: prometheus-metrics
+      KAFKA_BATCH_NUM_MESSAGES: 100
+      SERIALIZATION_FORMAT: json
+      LOG_LEVEL: warn
+    depends_on:
+      - kafka-broker

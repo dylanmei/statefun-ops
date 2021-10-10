@@ -1,0 +1,21 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+    }
+    plugins {
+        id 'org.jetbrains.kotlin.jvm' version '1.5.30'
+        id 'org.jetbrains.kotlin.kapt' version '1.5.30'
+        id 'org.jetbrains.kotlin.plugin.serialization' version '1.5.30'
+        id 'com.google.protobuf' version '0.8.14'
+        id 'com.adarshr.test-logger' version '3.0.0'
+    }
+}
+
+dependencyResolutionManagement {
+    repositories {
+        mavenCentral()
+    }
+}
+
+rootProject.name = 'statefun-ops'
+include 'protocols', 'statefun-kafka'

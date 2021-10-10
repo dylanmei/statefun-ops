@@ -1,0 +1,75 @@
+plugins {
+    id 'application'
+    id 'org.jetbrains.kotlin.jvm'
+    id 'org.jetbrains.kotlin.kapt'
+    id 'org.jetbrains.kotlin.plugin.serialization'
+    id 'com.adarshr.test-logger'
+}
+
+apply plugin: 'idea'
+apply plugin: 'kotlin-kapt'
+
+archivesBaseName = 'statefun-kafka'
+mainClassName = 'ops.kafka.harness.Harness'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(11)
+    }
+}
+
+configurations {
+    provided
+    statefunLib
+
+    localCompileClasspath.extendsFrom compileClasspath
+    localRuntimeClasspath.extendsFrom runtimeClasspath
+
+    implementation.exclude group: 'org.apache.commons'
+}
+
+dependencies {
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib'
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-core:$serializationVersion"
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:$serializationVersion"
+
+    provided "com.google.protobuf:protobuf-java:$protobufVersion"
+    provided "com.google.protobuf:protobuf-java-util:$protobufVersion"
+    implementation project(':protocols')
+
+    provided "org.apache.flink:statefun-sdk-java:$statefunVersion"
+    provided "org.apache.flink:statefun-kafka-io:$statefunVersion"
+    provided "org.apache.flink:statefun-flink-io:$statefunVersion"
+    provided "org.apache.flink:statefun-flink-harness:$statefunVersion"
+    statefunLib "org.apache.flink:statefun-flink-distribution:$statefunVersion"
+
+    implementation "org.apache.kafka:kafka-clients:$kafkaVersion"
+
+    provided 'org.apache.logging.log4j:log4j-slf4j-impl:2.13.3'
+    //provided 'org.slf4j:slf4j-api:1.7.28'
+
+    implementation 'com.google.auto.service:auto-service-annotations:1.0-rc6'
+    kapt 'com.google.auto.service:auto-service:1.0-rc6'
+
+    //testImplementation "org.apache.flink:statefun-testutil:$statefunVersion"
+    //testImplementation "io.kotest:kotest-assertions-core-jvm:$kotestVersion"
+    //testImplementation "org.junit.jupiter:junit-jupiter-api:$jupiterVersion"
+    //testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$jupiterVersion"
+}
+
+sourceSets {
+    main.compileClasspath += configurations.provided
+    test.compileClasspath += configurations.provided
+    test.runtimeClasspath += configurations.provided
+
+    local {
+        compileClasspath += configurations.provided
+        runtimeClasspath += main.output
+        runtimeClasspath += configurations.provided
+    }
+}
+
+run {
+    applicationDefaultJvmArgs = ["-Dlog4j2.configurationFile=log4j2.properties"]
+    classpath = sourceSets.local.runtimeClasspath
+}

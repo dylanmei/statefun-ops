@@ -1,0 +1,100 @@
+syntax = "proto3";
+
+package ops.protocols.kafka;
+
+option java_package = "ops.protocols.kafka.generated";
+option java_multiple_files = true;
+
+message KafkaTopicDeletePolicy {
+  int64 wait_time = 1;
+
+  message LogSizePolicy {
+    double lte_size = 1;
+  }
+  message MessagesInRatePolicy {
+    double lte_rate = 1;
+  }
+
+  oneof type {
+    LogSizePolicy log_size_policy = 3;
+    MessagesInRatePolicy messages_in_rate_policy = 4;
+  }
+}
+
+// State of a Kafka topic
+message KafkaTopic {
+  string topic_name = 1;
+  int32 partition_count = 2;
+  int32 replication_factor = 3;
+  map<string, string> topic_config = 4;
+  KafkaTopicDeletePolicy delete_policy = 5;
+  int64 created_time = 6;
+}
+
+// Kafka topic ingress event
+message KafkaTopicRequest {
+  string topic_name = 1;
+
+  message AddRequested {
+    int32 partition_count = 1;
+    int32 replication_factor = 2;
+    map<string, string> topic_config = 3;
+    KafkaTopicDeletePolicy delete_policy = 4;
+  }
+
+  message RemoveRequested {
+  }
+
+  oneof type {
+    AddRequested add_requested = 2;
+    RemoveRequested remove_requested = 3;
+  }
+}
+
+// Kafka topic egress event
+message KafkaTopicEvent {
+  string topic_name = 1;
+  int64 event_time = 2;
+
+  message TopicAdded {
+    int32 partition_count = 1;
+    int32 replication_factor = 2;
+    map<string, string> topic_config = 3;
+    KafkaTopicDeletePolicy delete_policy = 4;
+  }
+
+  message TopicRemoved {
+  }
+
+  oneof type {
+    TopicAdded topic_added = 3;
+    TopicRemoved topic_removed = 4;
+  }
+}
+
+// Kafka topic egress snapshot
+message KafkaTopicSnapshot {
+  string topic_name = 1;
+  int32 partition_count = 2;
+  int32 replication_factor = 3;
+  map<string, string> topic_config = 4;
+  KafkaTopicDeletePolicy delete_policy = 5;
+  int64 created_time = 6;
+
+  enum LifecycleStatus {
+    OK = 0;
+    GONE = 1;
+  }
+
+  LifecycleStatus lifecycle_status = 7;
+  map<string, double> recent_metrics = 8;
+}
+
+// Internal Kafka topic messaging
+message KafkaTopicMessage {
+  message CheckDeletePolicy {
+  }
+  oneof type {
+    CheckDeletePolicy check_delete_policy = 1;
+  }
+}
