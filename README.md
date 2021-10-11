@@ -18,7 +18,7 @@ Your new credential will expire in 5 minutes. However, a user can have multiple 
 Using your new credential, list topics, produce, and consume from Kafka:
 - To list topics, run `kafkacat -b localhost:9092 -X security.protocol=SASL_PLAINTEXT -X sasl.mechanism=SCRAM-SHA-256 -X sasl.username=<credential identifier> -X sasl.password=statefun -L`
 - To produce to a topic, run `echo "hello" | kafkacat -b localhost:9092 -X security.protocol=SASL_PLAINTEXT -X sasl.mechanism=SCRAM-SHA-256 -X sasl.username=<credential identifier> -X sasl.password=statefun -P -t hello-stream`
-- To consume from a topic, run `kafkacat -b localhost:9092 -X security.protocol=SASL_PLAINTEXT -X sasl.mechanism=SCRAM-SHA-256 -X sasl.username=<credential identifier> -X sasl.password=statefun -P -t hello-stream -o beginning -e`
+- To consume from a topic, run `kafkacat -b localhost:9092 -X security.protocol=SASL_PLAINTEXT -X sasl.mechanism=SCRAM-SHA-256 -X sasl.username=<credential identifier> -X sasl.password=statefun -C -t hello-stream -o beginning -e`
 
 To cleanup, remove your credentials, users, and topics.
 - To revoke a credential, run `python3 ./harness.py revoke-credential <credential identifier>`
