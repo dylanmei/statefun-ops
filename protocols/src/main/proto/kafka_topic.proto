@@ -8,16 +8,16 @@ option java_multiple_files = true;
 message KafkaTopicDeletePolicy {
   int64 wait_time = 1;
 
-  message LogSizePolicy {
+  message SizePolicy {
     double lte_size = 1;
   }
-  message MessagesInRatePolicy {
+  message RatePolicy {
     double lte_rate = 1;
   }
 
-  oneof type {
-    LogSizePolicy log_size_policy = 3;
-    MessagesInRatePolicy messages_in_rate_policy = 4;
+  oneof policy {
+    SizePolicy log_size_policy = 3;
+    RatePolicy messages_in_rate_policy = 4;
   }
 }
 

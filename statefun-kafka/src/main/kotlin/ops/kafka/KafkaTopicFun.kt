@@ -2,6 +2,7 @@ package ops.kafka
 
 import ops.kafka.client.KafkaClient
 import ops.protocols.kafka.generated.KafkaTopic
+import ops.protocols.kafka.generated.KafkaTopicDeletePolicy
 import ops.protocols.kafka.generated.KafkaTopicEvent
 import ops.protocols.kafka.generated.KafkaTopicMessage
 import ops.protocols.kafka.generated.KafkaTopicRequest
@@ -65,7 +66,7 @@ class KafkaTopicFun(private val options: Options) : StatefulMatchFunction() {
                 val event = addTopic(topic).get()
                 topicState.set(topic)
 
-                if (topic.hasDeletePolicy()) {
+                if (topic.hasDeletePolicy() && topic.deletePolicy.waitTime > 0) {
                     context.sendAfter(
                         Duration.ofMillis(topic.deletePolicy.waitTime),
                         context.self(),

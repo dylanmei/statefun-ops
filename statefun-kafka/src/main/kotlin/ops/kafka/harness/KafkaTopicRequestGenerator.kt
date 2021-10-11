@@ -22,17 +22,14 @@ class KafkaTopicRequestGenerator(val intervalMs: Long) : SerializableSupplier<Ka
                 KafkaTopicRequest.AddRequested.newBuilder()
                     .setPartitionCount(1)
                     .setReplicationFactor(1)
-                    .setDeletePolicy(
-                        //KafkaTopicDeletePolicy.newBuilder().setNoPolicy(
-                        //    KafkaTopicDeletePolicy.NoPolicy.newBuilder()
-                        //)
-                        KafkaTopicDeletePolicy.newBuilder()
-                            .setWaitTime(Duration.ofSeconds(1).toMillis())
-                            .setLogSizePolicy(
-                                KafkaTopicDeletePolicy.LogSizePolicy.newBuilder()
-                                    .setLteSize(0.0)
-                            )
-                    )
+                    //.setDeletePolicy(
+                    //    KafkaTopicDeletePolicy.newBuilder()
+                    //        .setWaitTime(Duration.ofSeconds(1).toMillis())
+                    //        .setLogSizePolicy(
+                    //            KafkaTopicDeletePolicy.SizePolicy.newBuilder()
+                    //                .setLteSize(0.0)
+                    //        )
+                    //)
                     .build()
             )
             .build(),
