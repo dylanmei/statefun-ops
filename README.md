@@ -9,6 +9,7 @@ Use 🌰 [Flink Stateful Functions](https://statefun.io) as a control-plane tech
 - Run `gradle run` to start the _embedded_ Stateful Functions application
 
 Open a new terminal in the same directory.
+- Ensure [kafka-python](https://github.com/dpkp/kafka-python) is installed: `pip3 install -r requirements.txt`
 - To add a topic, run `python3 ./harness.py add-topic hello-stream`
 - To add a user, run `python3 ./harness.py add-user wandering-squirrel`
 - To add a credential, run `python3 ./harness.py add-credential wandering-squirrel 5m`
