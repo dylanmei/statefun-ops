@@ -13,6 +13,19 @@ sys.path.insert(1, 'protocols/src/generated/main/python/')
 from kafka_topic_pb2 import KafkaTopicRequest
 from kafka_user_pb2 import KafkaUserRequest
 
+"""
+Run a Kafka producer to send the data to the 'request' ingress topics
+
+Commands:
+
+    add-topic:         Request to add a Kafka topic
+    remove-topic:      Request to remove a Kafka topic
+    add-user:          Request to remove a Kafka user
+    remove-user:       Request to remove a Kafka user
+    add-credential:    Request to remove a Kafka credential
+    remove-credential: Request to remove a Kafka credential
+"""
+
 KAFKA_ADDR = "localhost:9092"
 
 def produce_add_topic_request(args):
@@ -22,10 +35,10 @@ def produce_add_topic_request(args):
     request.add_requested.replication_factor = 1
     request.add_requested.topic_config["cleanup.policy"] = "delete"
     if len(args) > 1:
-        wait_time = delete_policy_wait_time(args[1])
+        wait_time = convert_duration(args[1])
         if wait_time > 0:
             request.add_requested.delete_policy.wait_time = wait_time * 1000
-            request.add_requested.delete_policy.log_size_policy.lte_size = 0.1
+            request.add_requested.delete_policy.log_size_policy.lte_size = 1
 
     key = request.topic_name.encode('utf-8')
     val = request.SerializeToString()
@@ -63,9 +76,9 @@ def produce_remove_user_request(args):
 def produce_add_credential_request(args):
     identifier = f'{args[0]}.{credential_nonce()}'
     secret_text = 'statefun'
-    expires_in = credential_expires_in()
+    expires_in = 60
     if len(args) > 1:
-        expires_in = credential_expires_in(args[1])
+        expires_in = convert_duration(args[1], expires_in)
 
     request = KafkaUserRequest()
     request.user_name = args[0]
@@ -76,7 +89,6 @@ def produce_add_credential_request(args):
     key = request.user_name.encode('utf-8')
     val = request.SerializeToString()
     produce_message('kafka-user-requests', key, val)
-
     print(f'Your new SASL credential is username={identifier} password={secret_text} expires-in={int(expires_in)}s')
 
 def produce_revoke_credential_request(args):
@@ -94,19 +106,18 @@ def produce_revoke_credential_request(args):
 def credential_nonce():
     return "".join([random.choice(string.ascii_uppercase) for n in range(8)])
 
-def credential_expires_in(val = None):
+def convert_duration(val, default_value = 0):
     if val == '1m':
         return 60
+    if val == '2m':
+        return 120
+    if val == '3m':
+        return 180
+    if val == '4m':
+        return 240
     if val == '5m':
         return 300
-    return 10
-
-def delete_policy_wait_time(val = None):
-    if val == '1m':
-        return 60
-    if val == '5m':
-        return 300
-    return 0
+    return default_value
 
 def produce_message(topic, key, value):
     producer = KafkaProducer(
