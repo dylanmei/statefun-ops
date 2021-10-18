@@ -1,6 +1,7 @@
 ---
+
 global:
-  scrape_interval: 10s
+  scrape_interval: 30s
 
 scrape_configs:
 - job_name: jmx
@@ -29,6 +30,7 @@ remote_write:
   - source_labels: [__name__]
     regex: (kafka_topic_messages_in_rate|kafka_topic_bytes_in_rate|kafka_topic_bytes_out_rate|kafka_topic_log_size)
     target_label: __continue
+    # Mark topic metrics to keep
 
     # Mark user/quota metrics to keep
   - source_labels: [__name__]
