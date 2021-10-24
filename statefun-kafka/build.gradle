@@ -51,7 +51,7 @@ dependencies {
     implementation 'com.google.auto.service:auto-service-annotations:1.0-rc6'
     kapt 'com.google.auto.service:auto-service:1.0-rc6'
 
-    //testImplementation "org.apache.flink:statefun-testutil:$statefunVersion"
+    testImplementation "org.apache.flink:statefun-testutil:$statefunVersion"
     testImplementation "io.kotest:kotest-assertions-core-jvm:$kotestVersion"
     testImplementation "org.junit.jupiter:junit-jupiter-api:$jupiterVersion"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$jupiterVersion"

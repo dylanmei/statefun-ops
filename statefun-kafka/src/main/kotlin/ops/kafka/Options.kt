@@ -21,6 +21,8 @@ class Options(val map: Map<String, String>) :
         private const val serialVersionUID: Long = 1L
     }
 
+    constructor() : this(emptyMap())
+
     val kafkaAddress
         get() = map.getOrDefault(KAFKA_BOOTSTRAP_SERVERS, DEFAULT_BOOTSTRAP_SERVERS)
 

@@ -2,7 +2,6 @@ package ops.kafka
 
 import ops.kafka.client.KafkaClient
 import ops.protocols.kafka.generated.KafkaTopic
-import ops.protocols.kafka.generated.KafkaTopicDeletePolicy
 import ops.protocols.kafka.generated.KafkaTopicEvent
 import ops.protocols.kafka.generated.KafkaTopicMessage
 import ops.protocols.kafka.generated.KafkaTopicRequest

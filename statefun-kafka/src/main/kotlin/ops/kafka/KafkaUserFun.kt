@@ -55,7 +55,8 @@ class KafkaUserFun(private val options: Options) : StatefulMatchFunction() {
                 if (userState.get() == null) {
                     log.info("Adding user ${request.userName}")
                 } else {
-                    log.warn("Cannot add user ${request.userName} that already exists")
+                    log.warn("Skipping user ${request.userName} that already exists")
+                    return
                 }
 
                 val user = KafkaUser.newBuilder()
@@ -291,8 +292,8 @@ class KafkaUserFun(private val options: Options) : StatefulMatchFunction() {
             KafkaUserEvent.newBuilder()
                 .setUserName(user.userName)
                 .setEventTime(System.currentTimeMillis())
-                .setCredentialExpired(
-                    KafkaUserEvent.CredentialExpired.newBuilder()
+                .setCredentialRevoked(
+                    KafkaUserEvent.CredentialRevoked.newBuilder()
                         .setIdentifier(identifier)
                 )
                 .build()
