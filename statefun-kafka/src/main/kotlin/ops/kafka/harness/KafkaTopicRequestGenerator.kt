@@ -1,45 +1,19 @@
 package ops.kafka.harness
 
-import ops.protocols.kafka.generated.KafkaTopicDeletePolicy
 import ops.protocols.kafka.generated.KafkaTopicRequest
 import org.apache.flink.statefun.flink.harness.io.SerializableSupplier
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.time.Duration
 
 class KafkaTopicRequestGenerator(val intervalMs: Long) : SerializableSupplier<KafkaTopicRequest> {
     companion object {
         val log: Logger = LoggerFactory.getLogger(KafkaTopicRequestGenerator::class.java)
     }
 
-    val topicName = "hello-stream"
     var alreadyRunning = false
-
     var requests = mutableListOf(
-        KafkaTopicRequest.newBuilder()
-            .setTopicName(topicName)
-            .setAddRequested(
-                KafkaTopicRequest.AddRequested.newBuilder()
-                    .setPartitionCount(1)
-                    .setReplicationFactor(1)
-                    //.setDeletePolicy(
-                    //    KafkaTopicDeletePolicy.newBuilder()
-                    //        .setWaitTime(Duration.ofSeconds(1).toMillis())
-                    //        .setLogSizePolicy(
-                    //            KafkaTopicDeletePolicy.SizePolicy.newBuilder()
-                    //                .setLteSize(0.0)
-                    //        )
-                    //)
-                    .build()
-            )
-            .build(),
-        KafkaTopicRequest.newBuilder()
-            .setTopicName(topicName)
-            .setRemoveRequested(
-                KafkaTopicRequest.RemoveRequested.newBuilder()
-                    .build()
-            )
-            .build(),
+        Generator.addTopicRequested("hello-stream"),
+        Generator.removeTopicRequested("hello-stream"),
     )
 
     private fun done() = requests.isEmpty()
