@@ -29,7 +29,9 @@ class PrometheusMetricDeserializationSchema :
             )
             .setValue(json.value)
             .addAllLabels(
-                json.labels.map {
+                json.labels.filterNot {
+                    it.key == "__name__"
+                }.map {
                     PrometheusLabel.newBuilder()
                         .setName(it.key)
                         .setValue(it.value)
@@ -39,7 +41,7 @@ class PrometheusMetricDeserializationSchema :
             .build()
     }
 
-    override fun isEndOfStream(p0: PrometheusMetric?) = false
+    override fun isEndOfStream(metric: PrometheusMetric?) = false
 
     override fun getProducedType(): TypeInformation<PrometheusMetric> =
         TypeExtractor.getForClass(PrometheusMetric::class.java)

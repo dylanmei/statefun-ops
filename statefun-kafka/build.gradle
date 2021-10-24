@@ -52,9 +52,9 @@ dependencies {
     kapt 'com.google.auto.service:auto-service:1.0-rc6'
 
     //testImplementation "org.apache.flink:statefun-testutil:$statefunVersion"
-    //testImplementation "io.kotest:kotest-assertions-core-jvm:$kotestVersion"
-    //testImplementation "org.junit.jupiter:junit-jupiter-api:$jupiterVersion"
-    //testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$jupiterVersion"
+    testImplementation "io.kotest:kotest-assertions-core-jvm:$kotestVersion"
+    testImplementation "org.junit.jupiter:junit-jupiter-api:$jupiterVersion"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$jupiterVersion"
 }
 
 sourceSets {
@@ -72,4 +72,14 @@ sourceSets {
 run {
     applicationDefaultJvmArgs = ["-Dlog4j2.configurationFile=log4j2.properties"]
     classpath = sourceSets.local.runtimeClasspath
+}
+
+test {
+    useJUnitPlatform()
+    dependsOn 'cleanTest'
+
+    testlogger {
+        theme 'mocha'
+        showExceptions true
+    }
 }
