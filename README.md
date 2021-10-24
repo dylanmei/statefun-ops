@@ -3,7 +3,9 @@ statefun-ops
 
 Use 🌰 [Flink Stateful Functions](https://statefun.io) as a control-plane technology for operating a streaming-platform based on [Apache Kafka](kafka.apache.org).
 
-![](./functions.png)
+<p align="center" width="100%">
+    <img src="./functions.png">
+</p>
 
 ## Walkthrough
 
@@ -11,9 +13,9 @@ Use 🌰 [Flink Stateful Functions](https://statefun.io) as a control-plane tech
 - Run `docker-compose up --detach` to start the infrastructure
 - Run `gradle run` to start the _embedded_ Stateful Functions application
 
-To follow the events, run in a new terminal: `python3 consumer.py events`
+To follow the events egress, open a new terminal in the same directory and run: `python3 ./consumer.py events`
 
-To follow the snapshots, run in a new terminal: `python3 consumer.py snapshots`
+To follow the snapshots egress, open a new terminal in the same directory and run: `python3 ./consumer.py snapshots`
 
 Open a new terminal in the same directory, then:
 
